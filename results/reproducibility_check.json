@@ -1,0 +1,7 @@
+{
+  "policy": "greedy",
+  "seed": 13,
+  "same_trace": true,
+  "first_final_stable_found": 272,
+  "second_final_stable_found": 272
+}

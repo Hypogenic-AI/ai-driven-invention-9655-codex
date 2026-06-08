@@ -1,0 +1,20 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\para{What do the results show?}
+The benchmark supports the narrow operational hypothesis behind AI-driven invention. A structured loop can use prior atomic evidence to choose better validations than random trial-and-error. The largest gain, +568.4 stable discoveries at the same 2,400-candidate budget, is practically meaningful because every avoided low-value validation can be reallocated to higher-fidelity computation or experiment.
+
+\para{Why did reward-oriented policies work?}
+The supervised evaluation shows that the surrogate has real ranking signal. Greedy, \ucb, and \diverseucb convert that ranking signal into high-precision selection. The small gap between \diverseucb and greedy suggests that diversity helped, but not enough to claim a strong policy-to-policy advantage with only five seeds. In this pool, exploitation already worked well because stable materials were common and the model learned a useful decision surface.
+
+\para{Why did uncertainty sampling fail?}
+Uncertainty sampling selects candidates that are informative for the classifier, not necessarily candidates likely to be stable. That difference matters in autonomous discovery. A lab that spends validation budget only on ambiguous candidates can improve its map of the boundary while discovering fewer useful materials. This result argues for acquisition functions that make the objective explicit: discovery yield, novelty, cost, synthesizability, or a calibrated combination of them.
+
+\para{What does transfer to \gnome mean?}
+The transfer check is deliberately conservative. The model uses composition-only descriptors because full \gnome structures were not locally mirrored. Even under that restriction, top-100 on-hull enrichment improves from 0.8735 to 0.970. The gain is modest because \gnome is already enriched by stronger models and validation pipelines. We interpret this as weak positive evidence that \mpdata-trained composition priors transfer across catalogs, not as a substitute for structure-aware ranking or DFT validation.
+
+\para{Limitations.}
+This is an offline benchmark, not a live autonomous laboratory. The oracle is precomputed energy-above-hull data, not new DFT, synthesis, or characterization. Stability is only one invention-relevant objective; usefulness, synthesizability, toxicity, cost, and manufacturability are not measured. The \mpdata pools have high stable prevalence, so future work should test lower-prevalence spaces where discovery is harder. The model is a lightweight \mlp rather than \chgnet, \macemp, \uma, \mattergen, or a full \matbench workflow. Finally, database novelty was not audited against disorder, polymorphism, or post-release entries.
+
+\para{Broader implications.}
+The result supports AI-guided triage as a practical layer in materials discovery. It also argues for careful claims. A system can improve validation efficiency without proving that it has invented a new material. Stronger claims need independent novelty checks, calibrated uncertainty, high-fidelity DFT, and experimental evidence. These guardrails matter because automated systems can otherwise turn model confidence into unsupported scientific conclusions.

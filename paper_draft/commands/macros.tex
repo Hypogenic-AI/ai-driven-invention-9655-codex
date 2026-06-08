@@ -1,0 +1,89 @@
+%%%%% PROJECT-SPECIFIC MACROS %%%%%
+% Define your project-specific terms here
+% Import with: \input{commands/macros}
+%
+% INSTRUCTIONS:
+% 1. Use \textsc{} for method/dataset/model names (small caps)
+% 2. Add \xspace at the end for automatic spacing
+% 3. Group related terms together
+% 4. Use consistent naming conventions
+
+\usepackage{xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METHOD NAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\methodname}{\textsc{AtomicLoop}\xspace}
+\newcommand{\mlp}{\textsc{MLP}\xspace}
+\newcommand{\ucb}{\textsc{UCB}\xspace}
+\newcommand{\diverseucb}{\textsc{Diverse-UCB}\xspace}
+\newcommand{\nearhull}{near-hull\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATASET NAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\mpdata}{\textsc{Materials Project}\xspace}
+\newcommand{\gnome}{\textsc{GNoME}\xspace}
+\newcommand{\matbench}{\textsc{Matbench Discovery}\xspace}
+\newcommand{\omat}{\textsc{OMat24}\xspace}
+\newcommand{\wbm}{\textsc{WBM}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MODEL NAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\mattergen}{\textsc{MatterGen}\xspace}
+\newcommand{\chgnet}{\textsc{CHGNet}\xspace}
+\newcommand{\macemp}{\textsc{MACE-MP}\xspace}
+\newcommand{\mthreegnet}{\textsc{M3GNet}\xspace}
+\newcommand{\uma}{\textsc{UMA}\xspace}
+\newcommand{\llmatdesign}{\textsc{LLMatDesign}\xspace}
+\newcommand{\alab}{\textsc{A-Lab}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% BASELINE NAMES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Baseline method names
+% Example: \newcommand{\baseline}{\textsc{BaselineMethod}\xspace}
+% Example: \newcommand{\fewshot}{\textsc{Few-shot}\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ABBREVIATIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Common abbreviations used in your paper
+% Example: \newcommand{\ie}{i.e.,\xspace}
+% Example: \newcommand{\eg}{e.g.,\xspace}
+% Example: \newcommand{\cf}{cf.\xspace}
+% Example: \newcommand{\wrt}{w.r.t.\xspace}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DOMAIN-SPECIFIC TERMS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Terms specific to your research domain
+% Keep consistent formatting throughout the paper
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% USAGE EXAMPLES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% GOOD:
+%   \newcommand{\hypogenic}{\textsc{HypoGeniC}\xspace}
+%   Usage: "We propose \hypogenic to generate hypotheses."
+%   Result: "We propose HypoGeniC to generate hypotheses."
+%
+% GOOD:
+%   \newcommand{\ours}{{\bf HypoGeniC}\xspace}
+%   Usage: "Our method, \ours, outperforms baselines."
+%   Result: "Our method, HypoGeniC, outperforms baselines."
+%
+% BAD (no \xspace):
+%   \newcommand{\hypogenic}{\textsc{HypoGeniC}}
+%   Usage: "\hypogenic outperforms..."
+%   Result: "HypoGeniCoutperforms..." (missing space!)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

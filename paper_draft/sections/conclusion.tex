@@ -1,0 +1,6 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+We presented a reproducible offline benchmark for AI-driven atomic discovery under a fixed validation budget. A lightweight surrogate-guided loop found substantially more stable or \nearhull \mpdata candidates than random search, with \diverseucb improving final discoveries by 568.4 candidates and 41.6\% at the same 2,400-candidate budget. Greedy and \ucb policies also strongly outperformed random, while uncertainty sampling underperformed it.
+
+The key takeaway is simple: structured selection can make atomic-materials validation more efficient, but prediction is only a triage layer. Future work should replace the lightweight surrogate with \chgnet, \macemp, \omat-derived models, or \uma; evaluate on harder \matbench-style candidate spaces; add generative candidate sources such as \mattergen; and reserve high-fidelity DFT or experimental validation for the top candidates before making novelty or invention claims.

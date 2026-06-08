@@ -1,0 +1,13 @@
+\begin{table}[t]
+    \centering
+    \caption{Held-out predictive signal for the stability surrogate. Higher is better for all metrics. Best results in {\bf bold}.}
+    \label{tab:predictive_signal}
+    \begin{tabular}{@{}lccccc@{}}
+        \toprule
+        Feature set & ROC-AUC & Avg. precision & F1 & Precision & Recall \\
+        \midrule
+        Composition only & 0.846 & 0.865 & 0.809 & 0.756 & 0.871 \\
+        Composition plus cell & {\bf 0.874} & {\bf 0.891} & {\bf 0.828} & {\bf 0.779} & {\bf 0.883} \\
+        \bottomrule
+    \end{tabular}
+\end{table}

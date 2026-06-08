@@ -1,0 +1,25 @@
+\section{Introduction}
+\label{sec:introduction}
+
+Materials discovery is a search problem with expensive feedback. A practical system cannot validate every possible atomic combination with density functional theory (DFT), synthesis, and characterization. It must decide which candidates deserve validation, learn from the outcomes, and improve the next set of choices. This is the operational core of AI-driven invention in inorganic materials: not a claim that a model has created a finished material, but a test of whether structured selection beats trial-and-error under the same budget.
+
+The recent materials literature shows why this question matters. Large-scale systems such as \gnome use graph networks and active learning to expand the set of predicted stable crystals \cite{merchant2023gnome}. Benchmarks such as \matbench ask whether models rank stability in the way discovery actually needs \cite{riebesell2023matbench}. Generative models such as \mattergen propose new crystal structures \cite{zeni2023mattergen}, and universal atomistic models such as \chgnet, \macemp, \mthreegnet, and \omat-derived models make fast screening increasingly practical \cite{deng2023chgnet,batatia2024foundation,chen2022m3gnet,barroso2024omat24}. On the other hand, autonomous-lab results also show that prediction and experiment interpretation must be audited carefully before making novelty claims \cite{szymanski2023alab,nature2026alabcorrection}.
+
+\para{What is still missing?}
+Many systems generate or screen candidates at large scale, but fewer compact benchmarks isolate the decision problem: given a fixed validation budget and a hidden stability oracle, how much more stable material can a structured loop find than random search? This distinction matters because a system that only improves model uncertainty may not improve discovery yield. Conversely, a simple model can be useful if it ranks the right candidates early.
+
+\para{Our approach.}
+We study a budgeted active-discovery loop, \methodname, using \mpdata labels as an offline oracle. Each candidate has descriptors visible to the loop and an energy-above-hull label hidden until selection. The loop trains a small \mlp classifier, scores unobserved candidates, validates a batch, and repeats. We compare random search, uncertainty sampling, greedy exploitation, \ucb, and \diverseucb. The method is summarized algorithmically in \secref{sec:methodology}, and the discovery curves are shown in \figref{fig:active_discovery}.
+
+\para{Quantitative preview.}
+At the same 2,400-candidate budget, \diverseucb found 1,933.2 stable or \nearhull candidates on average, while random search found 1,364.8. This is a 41.6\% increase in discoveries and a discovery acceleration factor of 1.419. The paired difference against random was +568.4 discoveries with Holm-adjusted $p=1.05 \times 10^{-5}$. The most important negative result is also clear: uncertainty sampling found 78.2 fewer stable candidates than random, showing that uncertainty reduction and discovery maximization are different objectives.
+
+Our contributions are:
+\begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+    \item We formulate a leakage-controlled offline active-discovery benchmark for stable inorganic materials using real \mpdata energy-above-hull labels.
+    \item We compare five selection policies under matched candidate pools, seeds, and validation budgets, with paired statistical tests against random search.
+    \item We show that reward-oriented surrogate policies find 540--568 more stable candidates than random at a 2,400-candidate budget, while uncertainty-only sampling underperforms.
+    \item We complement the in-domain benchmark with a \gnome transfer-ranking check and clarify why the result supports triage efficiency rather than standalone physical invention.
+\end{itemize}
+
+The rest of the paper reviews related work in AI materials discovery, defines the benchmark and acquisition policies, reports the predictive and active-discovery results, and discusses the limits of offline stability triage.

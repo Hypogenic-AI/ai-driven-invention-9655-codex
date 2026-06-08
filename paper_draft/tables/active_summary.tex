@@ -1,0 +1,16 @@
+\begin{table}[t]
+    \centering
+    \caption{Final active-discovery performance at a fixed 2,400-candidate validation budget. Higher is better for all metrics. Best results in {\bf bold}.}
+    \label{tab:active_summary}
+    \begin{tabular}{@{}lrrrr@{}}
+        \toprule
+        Policy & Mean stable found & Mean precision & Mean acceleration & Mean recall \\
+        \midrule
+        \diverseucb & {\bf 1,933.2} & {\bf 0.8055} & {\bf 1.4186} & {\bf 0.1362} \\
+        Greedy & 1,922.6 & 0.8011 & 1.4108 & 0.1354 \\
+        \ucb & 1,904.8 & 0.7937 & 1.3977 & 0.1342 \\
+        Random & 1,364.8 & 0.5687 & 1.0015 & 0.0961 \\
+        Uncertainty & 1,286.6 & 0.5361 & 0.9442 & 0.0906 \\
+        \bottomrule
+    \end{tabular}
+\end{table}

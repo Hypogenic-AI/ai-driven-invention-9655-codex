@@ -1,0 +1,17 @@
+PDF: papers/2312.03687_mattergen_generative_inorganic_materials_design.pdf
+Total pages: 56
+Pages per chunk: 5
+
+Chunks:
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_001.pdf: pages 1-5
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_002.pdf: pages 6-10
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_003.pdf: pages 11-15
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_004.pdf: pages 16-20
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_005.pdf: pages 21-25
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_006.pdf: pages 26-30
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_007.pdf: pages 31-35
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_008.pdf: pages 36-40
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_009.pdf: pages 41-45
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_010.pdf: pages 46-50
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_011.pdf: pages 51-55
+  2312.03687_mattergen_generative_inorganic_materials_design_chunk_012.pdf: page 56

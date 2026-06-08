@@ -1,0 +1,61 @@
+\section{Results}
+\label{sec:results}
+
+\para{Data audit.}
+\tabref{tab:data_audit} reports the oracle sizes and label prevalence. The \mpdata pool has high stable or \nearhull prevalence at 56.80\%, so random search is a strong baseline rather than a sparse-discovery lower bound. The \gnome transfer set is even more enriched, with 86.96\% on-hull candidates and 98.41\% near-hull candidates by the thresholds used here.
+
+\input{tables/data_audit}
+
+\para{The surrogate learns useful stability signal.}
+\tabref{tab:predictive_signal} and \figref{fig:predictive_signal} show held-out predictive performance. Composition-only descriptors reach ROC-AUC 0.846 and average precision 0.865. Adding coarse cell descriptors improves ROC-AUC to 0.874, average precision to 0.891, and F1 to 0.828. This supports the first hypothesis: simple leakage-controlled descriptors contain enough signal to rank stable and \nearhull candidates.
+
+\input{tables/predictive_metrics}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.90\linewidth]{figures/predictive_signal.png}
+    \caption{Predictive signal from leakage-controlled descriptors. The composition-plus-cell feature set improves the ROC and precision-recall behavior over composition-only features, showing that the surrogate has useful ranking signal before it is used inside the active-discovery loop.}
+    \label{fig:predictive_signal}
+\end{figure}
+
+\para{Model-guided policies discover many more stable candidates than random.}
+\tabref{tab:active_summary} reports final performance after 2,400 validations. \diverseucb finds the most stable candidates on average: 1,933.2 compared with 1,364.8 for random. Greedy and standard \ucb are close behind, with 1,922.6 and 1,904.8 stable discoveries. All three reward-oriented policies increase stable precision from 0.5687 for random to 0.7937--0.8055. \figref{fig:active_discovery} shows that these gains accumulate across acquisition rounds rather than appearing only at the final budget.
+
+\input{tables/active_summary}
+
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/active_learning_curves.png}
+        \caption{Discovery traces}
+        \label{fig:active_curves}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth]{figures/active_final_discoveries.png}
+        \caption{Final discoveries}
+        \label{fig:active_final}
+    \end{subfigure}
+    \caption{Budgeted active discovery on \mpdata. Reward-oriented policies dominate random selection under the same validation budget. Uncertainty sampling underperforms random, which shows that selecting ambiguous examples is not the same as selecting high-value candidates.}
+    \label{fig:active_discovery}
+\end{figure}
+
+\para{The gains are statistically large across matched seeds.}
+\tabref{tab:stat_tests} gives paired tests against random. \diverseucb improves final stable discoveries by +568.4 candidates with a 95\% confidence interval of [524.0, 612.8] and Holm-adjusted $p=1.05 \times 10^{-5}$. Greedy improves by +557.8 and \ucb by +540.0. Uncertainty sampling is significantly worse than random by -78.2 discoveries, with Holm-adjusted $p=0.0136$. The main positive result is therefore not just ``learning helps''; it is that reward-oriented acquisition is necessary.
+
+\input{tables/stat_tests}
+
+\para{External transfer is positive but modest.}
+We apply the composition-only \mpdata model to \gnome R2SCAN summaries because full structures were not locally mirrored. \tabref{tab:gnome_transfer} and \figref{fig:gnome_transfer} show that the top-ranked 100 candidates have a 0.970 on-hull rate compared with 0.8735 for random samples, an on-hull acceleration of 1.115. The gains remain positive through the top 10,000 but are modest because the \gnome set is already highly enriched.
+
+\input{tables/gnome_transfer}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.86\linewidth]{figures/gnome_transfer_topk.png}
+    \caption{\gnome transfer ranking. A composition-only surrogate trained on \mpdata improves on-hull enrichment in the top-ranked \gnome candidates, especially at top 100. Near-hull rates are close to saturated, so the stricter on-hull rate is the more informative transfer metric.}
+    \label{fig:gnome_transfer}
+\end{figure}
+
+\para{The run is reproducible under a deterministic mini-rerun.}
+The experiment included a same-seed repeat of the greedy policy. Both runs produced identical traces for seed 13, with \texttt{same\_trace=true}. This check does not prove full cross-platform determinism, but it confirms that the recorded run artifacts are internally reproducible in the configured environment.

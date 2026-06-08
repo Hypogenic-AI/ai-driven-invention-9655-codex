@@ -1,0 +1,17 @@
+\begin{table}[t]
+    \centering
+    \caption{Paired policy comparisons against random across five matched seeds. Confidence intervals are for final stable-discovery differences.}
+    \label{tab:stat_tests}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lrrrr@{}}
+        \toprule
+        Comparison & Mean difference & 95\% CI & Cohen's $d$ & Holm-adjusted $p$ \\
+        \midrule
+        \diverseucb vs. random & {\bf +568.4} & [524.0, 612.8] & 15.90 & $1.05 \times 10^{-5}$ \\
+        Greedy vs. random & +557.8 & [514.9, 600.7] & 16.16 & $1.05 \times 10^{-5}$ \\
+        \ucb vs. random & +540.0 & [515.3, 564.7] & {\bf 27.19} & {\bf $1.75 \times 10^{-6}$} \\
+        Uncertainty vs. random & -78.2 & [-129.8, -26.6] & -1.88 & 0.0136 \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}

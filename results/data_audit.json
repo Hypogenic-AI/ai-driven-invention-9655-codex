@@ -1,0 +1,31 @@
+{
+  "materials_project_raw_rows": 133420,
+  "materials_project_labeled_rows_used": 129622,
+  "excluded_missing_energy_above_hull": 3798,
+  "stable_threshold_ev_per_atom": 0.05,
+  "stable_count": 73630,
+  "stable_prevalence": 0.5680362901359337,
+  "energy_above_hull": {
+    "mean": 0.15466205775737762,
+    "std": 0.41280850768089294,
+    "min": 0.0,
+    "median": 0.03384801745414734,
+    "max": 6.369050979614258,
+    "missing": 0
+  },
+  "feature_counts": {
+    "composition_features": 131,
+    "structure_features": 142
+  },
+  "gnome_r2scan_rows": 139541,
+  "gnome_on_hull_prevalence": 0.869586716448929,
+  "gnome_near_hull_prevalence": 0.9841265291204736,
+  "gnome_decomposition_energy": {
+    "mean": -0.04325793279394586,
+    "std": 0.07488590505027753,
+    "min": -4.0823,
+    "median": -0.0294,
+    "max": 1.939,
+    "missing": 0
+  }
+}

@@ -1,0 +1,758 @@
+You are an academic paper writer. Generate a complete NEURIPS style paper
+based on the experiment results provided.
+
+════════════════════════════════════════════════════════════════════════════════
+                         IMPORTANT: BEFORE YOU START
+════════════════════════════════════════════════════════════════════════════════
+
+Before writing any content, you MUST complete these steps:
+
+1. READ THE SKILL: Review the paper-writer skill at .codex/skills/paper-writer/SKILL.md
+2. READ THE STYLE GUIDE: Study templates/paper_writing/lab_style_guide.md carefully
+3. REVIEW EXAMPLES: Browse paper_examples/ for formatting and language patterns:
+   - Look at sections/1.introduction.tex for language style
+   - Look at tables/*.tex for table formatting
+   - Look at commands/*.tex for macro usage
+4. VERIFY COMMAND TEMPLATES: Command templates (math.tex, general.tex, macros.tex) are pre-copied to paper_draft/commands/
+
+CRITICAL: Reference example papers for FORMATTING and LANGUAGE STYLE only.
+Do NOT copy content, phrasing, or narrative structure from the example papers.
+The examples are in a different research domain - focus only on presentation style.
+
+════════════════════════════════════════════════════════════════════════════════
+                            EXPERIMENT REPORT
+════════════════════════════════════════════════════════════════════════════════
+
+# Beyond Trial and Error: AI-Driven Invention Through Atomic Modeling
+
+## 1. Executive Summary
+
+This study tested whether an autonomous, structured experimental loop can discover stable inorganic material combinations more efficiently than random trial-and-error under a fixed validation budget. Using real Materials Project energy-above-hull labels as an offline oracle, the best structured policy found 1,933 stable or near-hull candidates on average, compared with 1,365 for random selection at the same 2,400-candidate validation budget.
+
+The result supports the narrow operational form of the hypothesis: AI-guided triage can systematically prioritize promising atomic combinations. It does not prove autonomous invention in the full physical sense, because no new DFT calculations, synthesis, or experimental characterization were performed.
+
+Practical implication: a surrogate-guided discovery loop can reduce wasted validation effort by roughly 40% in this offline benchmark, but final invention claims still require higher-fidelity validation and audited novelty/synthesizability checks.
+
+## 2. Research Question & Motivation
+
+**Research question:** Can an intelligent, structured experimental loop use atomic composition and structure descriptors to discover stable or near-hull inorganic materials more efficiently than random trial-and-error?
+
+The broader user hypothesis is that invention can be systematized by intelligently recombining existing elements of nature. In materials science, this maps to generating or enumerating atomic combinations, predicting which are stable, validating selected candidates, and iterating.
+
+The gap identified in `literature_review.md` is that modern systems such as GNoME, MatterGen, CHGNet, MACE-MP, OMat24, Matbench Discovery, LLMatDesign, and A-Lab show major progress, but robust autonomous discovery still depends on validation quality, novelty checks, uncertainty, and synthesis evidence.
+
+## 3. Methodology
+
+### Datasets
+
+| Dataset | Use | Rows used | Notes |
+|---|---:|---:|---|
+| Materials Project HF | Primary active-discovery oracle | 129,622 | 3,798 rows with missing energy-above-hull were excluded |
+| GNoME R2SCAN summaries | External transfer ranking | 139,541 | Used decomposition energy as an external stability proxy |
+| Literature/code resources | Design context | 14 papers, 8 repos | Reviewed before planning |
+
+Primary label: stable or near-hull if `energy_above_hull <= 0.05 eV/atom`. This threshold follows common computational materials practice for near-hull triage. For the stricter GNoME transfer check, on-hull means `Decomposition Energy Per Atom <= 0.0`.
+
+### Features
+
+The model used leakage-controlled candidate descriptors:
+
+- 118 element-fraction features.
+- Composition summaries: atom count, number of elements, entropy, max/min element fraction, weighted atomic number statistics, period/block summaries.
+- Materials Project active loop only: coarse cell descriptors such as volume, volume per atom, cell lengths, aspect ratio, and angles.
+
+Energy-like columns including energy per atom, formation energy, energy above hull, and decomposition energy were excluded from model inputs.
+
+### Models and Policies
+
+The surrogate was a small PyTorch MLP classifier trained on GPU 0 with mixed precision where CUDA was available. Training batch size was 128; inference batch size was 8,192.
+
+Active-discovery protocol:
+
+- Candidate pool: 25,000 Materials Project rows per seed.
+- Initial random observations: 400.
+- Acquisition: 8 rounds of 250 candidates.
+- Total validation budget: 2,400 candidates per seed.
+- Seeds: 5.
+
+Policies compared:
+
+| Policy | Description |
+|---|---|
+| Random | Uniform trial-and-error baseline |
+| Uncertainty | Selects candidates near classifier uncertainty |
+| Greedy | Selects highest predicted stability probability |
+| UCB | Selects predicted probability plus uncertainty bonus |
+| Diverse UCB | Selects high UCB-score candidates while spreading across composition space |
+
+### Statistical Plan
+
+Main endpoint: final cumulative stable discoveries at budget 2,400. Policies were compared against random using paired tests across identical seeds. Shapiro-Wilk tests checked paired differences; paired t-tests were selected for the main comparisons. Holm correction was applied across policy-vs-random tests.
+
+### Environment
+
+Run time was 164.5 seconds. PyTorch used CUDA on one NVIDIA RTX A6000 GPU. The workspace `.venv` recorded dependencies in `pyproject.toml`.
+
+Key versions:
+
+- Python 3.12.8
+- NumPy 2.4.6
+- pandas 3.0.3
+- PyTorch 2.12.0+cu130
+- scikit-learn 1.9.0
+- SciPy 1.17.1
+
+Full environment metadata: `results/environment.json`.
+
+## 4. Results
+
+### Data Audit
+
+| Quantity | Value |
+|---|---:|
+| Materials Project raw rows | 133,420 |
+| Materials Project labeled rows used | 129,622 |
+| Missing energy-above-hull rows excluded | 3,798 |
+| Stable or near-hull rows | 73,630 |
+| Stable prevalence | 56.80% |
+| GNoME R2SCAN rows | 139,541 |
+| GNoME on-hull prevalence | 86.96% |
+| GNoME near-hull prevalence | 98.41% |
+
+### Predictive Signal
+
+The surrogate had useful stability-ranking signal even with simple descriptors.
+
+| Feature set | ROC-AUC | Average precision | F1 | Precision | Recall |
+|---|---:|---:|---:|---:|---:|
+| Composition only | 0.846 | 0.865 | 0.809 | 0.756 | 0.871 |
+| Composition plus cell | 0.874 | 0.891 | 0.828 | 0.779 | 0.883 |
+
+![Predictive signal](figures/predictive_signal.png)
+
+### Active Discovery
+
+At the same 2,400-candidate validation budget, structured policies substantially outperformed random selection.
+
+| Policy | Mean stable found | Mean precision | Mean discovery acceleration | Mean stable recall |
+|---|---:|---:|---:|---:|
+| Diverse UCB | 1,933.2 | 0.8055 | 1.4186 | 0.1362 |
+| Greedy | 1,922.6 | 0.8011 | 1.4108 | 0.1354 |
+| UCB | 1,904.8 | 0.7937 | 1.3977 | 0.1342 |
+| Random | 1,364.8 | 0.5687 | 1.0015 | 0.0961 |
+| Uncertainty | 1,286.6 | 0.5361 | 0.9442 | 0.0906 |
+
+![Active discovery curves](figures/active_learning_curves.png)
+
+![Final discoveries](figures/active_final_discoveries.png)
+
+### Statistical Tests
+
+| Comparison | Mean stable-discovery difference | 95% CI | Cohen's d | Holm-adjusted p |
+|---|---:|---:|---:|---:|
+| Diverse UCB vs random | +568.4 | [524.0, 612.8] | 15.90 | 1.05e-05 |
+| Greedy vs random | +557.8 | [514.9, 600.7] | 16.16 | 1.05e-05 |
+| UCB vs random | +540.0 | [515.3, 564.7] | 27.19 | 1.75e-06 |
+| Uncertainty vs random | -78.2 | [-129.8, -26.6] | -1.88 | 0.0136 |
+
+The model-guided policies were significantly better than random. Pure uncertainty sampling was significantly worse, showing that exploration without a reward-oriented objective is not enough for discovery.
+
+### GNoME Transfer Ranking
+
+The composition-only Materials Project model was applied to GNoME R2SCAN summaries. Because GNoME is already heavily enriched for stable materials, near-hull rates were close to saturated; the stricter on-hull rate is more informative.
+
+| Top K | Top on-hull rate | Random on-hull rate | On-hull acceleration | Top mean decomposition energy |
+|---:|---:|---:|---:|---:|
+| 100 | 0.970 | 0.8735 | 1.115 | -0.1288 |
+| 500 | 0.920 | 0.8691 | 1.058 | -0.0801 |
+| 1,000 | 0.917 | 0.8702 | 1.055 | -0.0722 |
+| 5,000 | 0.937 | 0.8697 | 1.078 | -0.0606 |
+| 10,000 | 0.929 | 0.8697 | 1.068 | -0.0586 |
+
+![GNoME transfer](figures/gnome_transfer_topk.png)
+
+### Reproducibility
+
+The built-in deterministic mini-rerun repeated the greedy policy on the same seed and obtained identical traces:
+
+```json
+{
+  "policy": "greedy",
+  "seed": 13,
+  "same_trace": true,
+  "first_final_stable_found": 272,
+  "second_final_stable_found": 272
+}
+```
+
+## 5. Analysis & Discussion
+
+The results support H1 and H2. The surrogate learned meaningful stability signal, and model-guided acquisition improved stable-material discovery under a fixed budget. This is the computational analogue of systematized invention: instead of trying combinations blindly, the system uses prior evidence to decide which combinations to validate next.
+
+H3 is partially supported. Diverse UCB had the highest mean final discovery count, but it was only modestly above greedy exploitation. This suggests that chemical diversity helps avoid narrow exploitation, but the current experiment did not include enough seeds to claim a strong difference between the model-guided policies themselves.
+
+H4 is weakly but positively supported. The Materials Project composition model improved GNoME on-hull ranking, especially in the top 100 candidates. Transfer gains were modest because GNoME R2SCAN summaries are already enriched: 86.96% are on-hull and 98.41% are near-hull by the thresholds used here.
+
+The biggest negative result is uncertainty sampling. Selecting ambiguous candidates produced fewer discoveries than random, which is a useful warning for autonomous labs: uncertainty reduction and discovery maximization are different objectives.
+
+## 6. Limitations
+
+- This was an offline benchmark, not a live autonomous lab.
+- The oracle was precomputed energy-above-hull data, not new DFT, synthesis, or characterization.
+- Stability is only one invention-relevant objective; usefulness, synthesizability, toxicity, cost, and manufacturability were not measured.
+- Materials Project pools had high stable prevalence, so future work should test harder, lower-prevalence candidate spaces.
+- GNoME transfer used composition-only descriptors because full structures were not locally mirrored.
+- The model was a simple MLP, not CHGNet, MACE-MP, UMA, MatterGen, or a full Matbench Discovery workflow.
+- Only five active-learning seeds were run; paired effects against random were very large, but smaller policy-to-policy differences need more runs.
+- Database novelty was not audited against disorder, polymorphism, or post-release entries.
+
+## 7. Conclusions & Next Steps
+
+The core finding is that structured autonomous selection can discover stable atomic combinations much more efficiently than random trial-and-error in a real offline materials benchmark. This supports the operational premise behind AI-driven invention, while also showing that prediction is only a triage layer and cannot by itself establish a breakthrough invention.
+
+Recommended next steps:
+
+1. Replace the lightweight MLP with CHGNet, MACE-MP, or OMat24-derived models and evaluate on Matbench Discovery.
+2. Add a generative candidate source such as MatterGen, then run stability, novelty, duplicate, oxidation-state, and synthesizability filters.
+3. Calibrate uncertainty and compare acquisition functions on lower-prevalence candidate pools.
+4. Reserve high-fidelity DFT calculations or experimental validation for top candidates before making any novelty or invention claims.
+
+## 8. Output Files
+
+| File | Purpose |
+|---|---|
+| `src/run_discovery_experiments.py` | Main experiment and analysis code |
+| `planning.md` | Preregistered motivation, novelty, and experimental plan |
+| `results/data_audit.json` | Dataset validation summary |
+| `results/predictive_metrics.csv` | Surrogate predictive metrics |
+| `results/active_learning_trace.csv` | Per-round active-learning results |
+| `results/active_learning_summary.csv` | Final policy summaries |
+| `results/stat_tests.csv` | Statistical tests |
+| `results/gnome_transfer_summary.csv` | GNoME transfer ranking summary |
+| `results/gnome_ranked_candidates.csv` | Ranked GNoME candidate list |
+| `results/reproducibility_check.json` | Deterministic mini-rerun result |
+| `figures/*.png` | Report visualizations |
+
+## 9. References
+
+- Merchant et al. 2023. GNoME: Scaling deep learning for materials discovery.
+- Riebesell et al. 2023/2024. Matbench Discovery.
+- Barroso-Luque et al. 2024/2026. OMat24.
+- Zeni et al. 2023/2025. MatterGen.
+- Deng et al. 2023. CHGNet.
+- Batatia et al. 2024. MACE-MP.
+- Chen and Ong 2022. M3GNet.
+- Szymanski et al. 2023 and Nature correction 2026. A-Lab.
+- Jia, Zhang, and Fung 2024. LLMatDesign.
+- Local resource details: `literature_review.md`, `resources.md`, `papers/`, `datasets/`, and `code/`.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                            RESEARCH PLAN
+════════════════════════════════════════════════════════════════════════════════
+
+# Planning: AI-Driven Invention Through Atomic Materials Discovery
+
+## Motivation & Novelty Assessment
+
+### Why This Research Matters
+Systematized invention in atomic materials requires more than generating many combinations: it needs a way to prioritize which combinations deserve costly validation. If an autonomous loop can learn from prior atomic structures and select better candidates than random trial-and-error, it would support the practical core of AI-driven invention for materials, energy, and medicine-adjacent molecular design.
+
+### Gap in Existing Work
+The literature review shows strong progress in GNoME, Matbench Discovery, MatterGen, CHGNet, MACE-MP, OMat24, and A-Lab, but also highlights a gap between large-scale candidate production and audited autonomous discovery. Existing work often demonstrates powerful screening or generation, while novelty, synthesizability, and validation remain bottlenecks. A compact offline experiment can test the narrower mechanism: whether structured autonomous selection increases discovery yield under a fixed validation budget.
+
+### Our Novel Contribution
+This study tests a budgeted, active discovery loop on local real atomic-materials datasets. The contribution is not a claim of new physical materials, but an empirical measurement of how much a structured surrogate-guided loop improves stable-material discovery relative to random search and simpler acquisition rules when the hidden oracle is real energy-above-hull data.
+
+### Experiment Justification
+- Experiment 1: Data audit and feature validation are needed to ensure the offline oracle is real, labels are not leaked, and Materials Project/JARVIS/GNoME resources can support atomic-discovery evaluation.
+- Experiment 2: Budgeted active-learning discovery on Materials Project is needed to test whether a structured autonomous loop finds stable or near-hull materials faster than trial-and-error.
+- Experiment 3: External screening on GNoME summaries is needed to test whether the learned prioritization transfers to a distinct candidate catalog and can rank high-stability candidates.
+- Experiment 4: Error and subgroup analysis are needed because autonomous invention systems can fail systematically on rare chemistries, larger unit cells, or out-of-distribution combinations.
+
+## Research Question
+Can an intelligent, structured experimental loop use atomic composition and structure descriptors to discover stable or near-hull inorganic materials more efficiently than random trial-and-error under a fixed validation budget?
+
+## Background and Motivation
+The user hypothesis proposes that inventions arise from recombining existing natural ingredients, and asks whether intelligent systems can search those combinations systematically. In atomic materials discovery, this maps naturally to candidate generation, surrogate prediction, active selection, and validation against thermodynamic stability. The literature indicates that foundation atomistic models and active-learning loops can accelerate screening, but rigorous discovery claims require careful offline benchmarking and independent validation.
+
+## Hypothesis Decomposition
+- H1: Composition and structure descriptors contain enough signal to predict whether a candidate is stable or near-hull.
+- H2: A model-guided acquisition policy discovers stable candidates at a higher rate than random selection with the same number of oracle evaluations.
+- H3: Diversity-aware acquisition avoids overly narrow exploitation and improves cumulative discovery coverage across chemistries.
+- H4: A model trained on Materials Project labels can at least partially rank GNoME candidates by stability, but external transfer will be weaker than in-domain active learning.
+
+Independent variables are the selection policy, random seed, budget, and candidate dataset. Dependent variables are stable discoveries, precision among selected candidates, discovery acceleration factor, recall of available stable candidates, ROC/PR metrics, and subgroup/error patterns. Stable or near-hull is defined as energy above hull <= 0.05 eV/atom where available.
+
+## Proposed Methodology
+
+### Approach
+Use an offline active-learning benchmark. Each candidate has descriptors available to the autonomous system and a hidden stability label from precomputed DFT or high-throughput calculations. The loop starts with a small random seed set, trains a surrogate classifier, selects the next batch to "validate," reveals labels, and repeats until the budget is exhausted.
+
+This approach is chosen because real DFT or robotic synthesis is infeasible in a short automated run, but precomputed stability labels let us evaluate discovery efficiency objectively without simulating outcomes.
+
+### Experimental Steps
+1. Verify environment, GPU availability, dataset schema, missingness, and label prevalence.
+2. Build leakage-controlled descriptors from atomic numbers, atom counts, cell geometry, composition diversity, and simple element statistics. Exclude energy-per-atom, formation energy, and energy-above-hull from model inputs.
+3. Split Materials Project into a candidate pool and a held-out test set with fixed random seed.
+4. Train baseline supervised classifiers and evaluate predictive signal with ROC-AUC, PR-AUC, F1, precision, and recall.
+5. Run budgeted discovery loops across multiple random seeds for random selection, greedy surrogate exploitation, uncertainty-weighted acquisition, and diversity-aware acquisition.
+6. Analyze cumulative stable discoveries, discovery acceleration factor, final precision, and confidence intervals across seeds.
+7. Apply the trained ranking model to GNoME summaries using compatible features and evaluate whether top-ranked candidates have lower decomposition energy than random candidates.
+8. Perform error analysis by number of elements, cell size, composition families, and uncertainty.
+
+### Baselines
+- Random selection: lower-bound trial-and-error baseline.
+- Uncertainty sampling: selects candidates near model uncertainty; tests whether exploration alone is enough.
+- Greedy exploitation: selects highest predicted stability probability.
+- Diversity-aware acquisition: proposed structured policy that combines predicted stability, uncertainty, and chemical diversity.
+
+### Evaluation Metrics
+- Stable discovery count and stable precision among selected candidates.
+- Discovery acceleration factor: selected stable precision divided by pool stable prevalence.
+- Recall of all stable candidates in the searchable pool.
+- ROC-AUC and average precision for surrogate ranking.
+- Bootstrap or across-seed 95% confidence intervals for discovery outcomes.
+- Effect sizes comparing proposed policy to random baseline.
+
+### Statistical Analysis Plan
+Use paired comparisons across the same random seeds and budgets. For final cumulative stable discoveries, use paired t-tests when differences are approximately normal and Wilcoxon signed-rank tests otherwise. Report p-values, confidence intervals, and Cohen's d. Use alpha = 0.05. Since multiple acquisition policies are compared to random, apply Holm correction for the main family of comparisons.
+
+## Expected Outcomes
+The hypothesis is supported if model-guided and diversity-aware policies discover substantially more stable candidates than random search, with statistically significant improvements and meaningful discovery acceleration. The hypothesis is weakened if all structured policies perform near random, if improvements only come from leakage-prone features, or if external transfer to GNoME ranking is negligible.
+
+## Timeline and Milestones
+- Setup and data audit: 10-20 minutes.
+- Descriptor and model implementation: 30-45 minutes.
+- Active-learning experiments and external ranking: 45-75 minutes.
+- Statistical analysis and figures: 20-35 minutes.
+- Final report and reproducibility validation: 20-30 minutes.
+
+## Potential Challenges
+- Label imbalance may make accuracy misleading, so PR-AUC and discovery precision are primary.
+- Energy columns can leak the target, so they are excluded from model inputs.
+- GNoME summaries do not include full structures locally, so external transfer will use composition and coarse summary descriptors only.
+- ML stability labels are not experimental synthesis, so conclusions are about computational triage, not final invention.
+- Heavy atomistic models may require additional setup; this study uses lightweight descriptors for reliable completion in one session.
+
+## Success Criteria
+The research succeeds if it produces a reproducible offline benchmark, actual active-learning results, statistical comparisons against baselines, visualizations, and a clear conclusion about whether structured autonomous search improves stable-material discovery under budget constraints.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          LITERATURE REVIEW
+════════════════════════════════════════════════════════════════════════════════
+
+# Literature Review: AI-Driven Invention Through Atomic Modeling
+
+## Review Scope
+
+### Research Question
+
+Can an intelligent system autonomously combine generative models, atomistic surrogate models, benchmarked stability predictors, and closed-loop validation to discover novel materials more systematically than trial-and-error experimentation?
+
+### Inclusion Criteria
+
+- Methods that operate on atoms, molecules, crystals, or periodic structures.
+- Work on materials discovery, inverse design, autonomous labs, ML interatomic potentials, or foundation atomistic models.
+- Papers with datasets, code, benchmarks, or clear experimental workflows useful to a downstream experiment runner.
+- Recent work from 2022-2026, plus core benchmark/foundation papers.
+
+### Exclusion Criteria
+
+- Purely conceptual AI-discovery commentary without usable methods, data, or benchmarks.
+- Non-atomic design tasks where structure, energy, stability, or molecular/crystal properties are absent.
+- Datasets too large to download blindly without a benchmark-sized subset or reproducible partial-access path.
+
+### Search Log
+
+| Date | Query | Source | Results | Notes |
+|---|---|---:|---:|---|
+| 2026-06-08 | "AI-driven materials discovery autonomous experimentation atomic modeling" | paper-finder | 0 usable | Diligent mode stalled; process was stopped. |
+| 2026-06-08 | "AI-driven materials discovery atomic modeling" | paper-finder | 0 usable | Fast mode timed out after 30 seconds. |
+| 2026-06-08 | AI-driven materials discovery, foundation MLIPs, autonomous labs, generative crystal inverse design | arXiv/Nature/HF/GitHub | 14 papers | Manual fallback search. |
+
+## Research Area Overview
+
+The area is converging on a modular discovery stack. Candidate proposals come from substitution/enumeration, generative crystal models, or LLM-guided modification agents. Candidate evaluation is increasingly handled by universal or foundation machine-learned interatomic potentials (MLIPs), then calibrated against DFT or experimental characterization. Benchmarks such as Matbench Discovery shift evaluation from generic formation-energy regression to the task that matters for discovery: whether an unrelaxed candidate can be triaged as stable relative to a DFT convex hull.
+
+The hypothesis is directionally supported, but with a major qualification: current AI systems are strongest as accelerators and prioritizers, not autonomous arbiters of novelty or synthesizability. The A-Lab correction and broader critique around automated phase identification show that closed-loop systems need robust independent verification, especially when claiming "new" materials.
+
+## Key Papers
+
+### GNoME: Scaling Deep Learning for Materials Discovery
+
+- Authors: Merchant, Batzner, Schoenholz, Aykol, Cheon, Cubuk
+- Year: 2023
+- Source: Nature
+- Key contribution: Scaled graph networks plus active learning to search inorganic crystal space, reporting 2.2M structures below the convex hull and a released subset of highly stable candidates.
+- Methodology: Candidate generation from structural/compositional transformations, GNN filtering, DFT validation, iterative retraining, and additional r2SCAN checks.
+- Datasets used: Materials Project, OQMD, WBM, ICSD snapshots; released GNoME summaries and structures.
+- Results: Improved discovery efficiency by about an order of magnitude; released 381k initially and later more than 520k near-hull materials in the repository.
+- Code/data: `code/materials_discovery_gnome/`; summaries downloaded to `datasets/gnome_summaries/`.
+- Relevance: Best example of large-scale AI-directed material search with active-learning feedback.
+
+### A-Lab: Autonomous Laboratory for Inorganic Materials
+
+- Authors: Szymanski, Rendy, Fei, Kumar, He, Milsted, McDermott, et al.
+- Year: 2023, correction 2026
+- Source: Nature
+- Key contribution: Robotic solid-state synthesis loop that plans, executes, characterizes, and updates synthesis experiments.
+- Methodology: Candidate selection from phase-stability databases, NLP-based synthesis recipe suggestions, robotic powder handling, automated XRD phase analysis, and active learning over synthesis recipes.
+- Datasets used: Materials Project, Google DeepMind/GNoME-derived candidates, text-mined synthesis literature.
+- Results: Original paper reported 36/57 realized targets over 17 days; the 2026 correction clarifies novelty and interpretation concerns.
+- Code/data: Target-screening algorithm link in paper; no full robotic system code cloned.
+- Relevance: Shows why autonomous discovery must couple prediction with audited experiment interpretation.
+
+### Matbench Discovery
+
+- Authors: Riebesell, Goodall, Benner, Chiang, Deng, Ceder, Asta, Lee, Jain, Persson
+- Year: 2023/2024
+- Source: arXiv; later Nature Machine Intelligence
+- Key contribution: Discovery-oriented benchmark for ML energy models used as DFT prefilters.
+- Methodology: Predict relaxed energies from unrelaxed WBM test structures, classify thermodynamic stability against a DFT convex hull, and rank models by task metrics.
+- Datasets used: MP v2022.10.28 as allowed training set; WBM unrelaxed structures as test set.
+- Baselines: random forests, CGCNN, MEGNet, ALIGNN, M3GNet, CHGNet, MACE, SevenNet, Orb, EquiformerV2/eSEN variants.
+- Results: Universal interatomic potentials outperform older property predictors; OMat24-derived models now dominate leaderboard-style metrics.
+- Code/data: `code/matbench-discovery/`.
+- Relevance: Recommended primary benchmark for evaluating material discovery triage.
+
+### OMat24
+
+- Authors: Barroso-Luque, Shuaibi, Fu, Wood, Dzamba, Gao, Rizvi, Zitnick, et al.
+- Year: 2024, updated 2026
+- Source: arXiv; Nature Computational Science version appeared in 2026
+- Key contribution: Open inorganic materials dataset with over 110M DFT calculations and pretrained models.
+- Methodology: Generate diverse non-equilibrium configurations via rattling, relaxation sampling, AIMD, and split by in-domain and out-of-domain composition/element/prototype criteria.
+- Datasets used: Materials Project, MPtrj, Alexandria, OMat generation pipelines.
+- Results: OMat24-pretrained models achieve state-of-the-art Matbench Discovery results, with reported F1 above 0.9 and energy-above-hull MAE around 18-20 meV/atom for top models.
+- Code/data: OMat24 references downloaded to `datasets/omat24_references/`; full dataset not mirrored due size.
+- Relevance: Strongest open data source for training or fine-tuning current inorganic MLIPs.
+
+### MatterGen
+
+- Authors: Zeni, Pinsler, Zuegner, Fowler, Horton, Fu, Shysheya, Crabbé, et al.
+- Year: 2023/2025
+- Source: arXiv/Nature
+- Key contribution: Diffusion model for directly generating stable, unique, novel inorganic crystals with optional property, chemistry, and symmetry conditioning.
+- Methodology: Joint diffusion over atom types, fractional coordinates, and lattice, with equivariant score network and property-adapter fine-tuning.
+- Datasets used: Alex-MP, MP-20, ICSD/reference sets, DFT relaxation evaluation.
+- Baselines: CDVAE, G-SchNet, FTCP, substitution, random structure search.
+- Metrics: S.U.N. rate (stable, unique, novel), RMSD to DFT-relaxed structures, novelty/uniqueness, target-property success.
+- Code/data: `code/mattergen/`.
+- Relevance: Best candidate generator for experiments that move beyond screening known enumerations.
+
+### LLMatDesign
+
+- Authors: Jia, Zhang, Fung
+- Year: 2024
+- Source: arXiv
+- Key contribution: LLM-agent loop for interpretable material modification toward user-specified property targets.
+- Methodology: LLM proposes addition/removal/substitution/exchange operations, tools relax structures and predict properties, and self-reflection is fed back into the next iteration.
+- Datasets/tools used: Materials Project queries, ML force fields, ML property predictors.
+- Results: GPT-4o and Gemini variants outperform random modification baselines on band-gap and formation-energy tasks, but results depend on tool quality and target setup.
+- Code: `code/LLMatDesign/`.
+- Relevance: Useful blueprint for agent orchestration and hypothesis-driven material modification.
+
+### M3GNet, CHGNet, MACE-MP, and UMA
+
+- M3GNet introduced a universal graph IAP with three-body interactions trained on Materials Project relaxation trajectories, then used it to screen 31M hypothetical structures.
+- CHGNet adds magnetic-moment regularization to infer charge-relevant information and supports energy, forces, stress, magnetic moments, relaxation, and MD.
+- MACE-MP demonstrates broad zero-shot MD and chemistry/materials use from MPtrj-trained MACE foundation potentials, while highlighting that fine-tuning remains important for reaction barriers and specialized domains.
+- UMA scales cross-domain atomistic modeling to roughly 500M unique 3D atomic structures and uses task conditioning plus mixture-of-linear-experts routing to support materials, molecules, catalysts, MOFs, and molecular crystals.
+
+Together these papers define the current surrogate-model baseline set for atomic experiments.
+
+## Common Methodologies
+
+- Graph neural network potentials: M3GNet, CHGNet, MACE, Equiformer/eSEN, UMA, Orb, SevenNet. Used for fast relaxation, MD, energy/force/stress prediction, and DFT prefiltering.
+- Active learning: GNoME and A-Lab iteratively add high-value calculations or experiments to improve future decisions.
+- Generative crystal modeling: MatterGen and diffusion-transformer work generate structures directly rather than only filtering enumerated candidates.
+- LLM-guided agents: LLMatDesign uses language models to choose chemically motivated modifications and reflect on prior failures.
+- Convex-hull stability filtering: central for GNoME, A-Lab target selection, and Matbench Discovery evaluation.
+
+## Standard Baselines
+
+- Random selection or random structure search: lower-bound discovery acceleration.
+- Substitution/prototype enumeration: strong classical materials-discovery baseline.
+- CGCNN, MEGNet, ALIGNN: older supervised crystal-property predictors.
+- M3GNet, CHGNet, MACE-MP, SevenNet, Orb, Equiformer/eSEN, UMA: modern MLIP baselines.
+- CDVAE, G-SchNet, FTCP, SyMat: generative crystal baselines.
+
+## Evaluation Metrics
+
+- Energy MAE/RMSE: useful but insufficient for discovery if used alone.
+- Energy above hull MAE: more task-aligned for stability triage.
+- Stability F1, precision, recall/TPR, TNR: core classification metrics in Matbench Discovery.
+- Discovery acceleration factor: measures enrichment of stable candidates compared with random selection.
+- S.U.N. rate: stable, unique, novel material fraction for generative models.
+- RMSD to DFT-relaxed structures: measures whether generated structures are near equilibrium.
+- Experimental synthesis/characterization success: necessary for final claims, but hard to automate reliably.
+
+## Datasets in the Literature
+
+- Materials Project/MPtrj: canonical training source for M3GNet, CHGNet, MACE-MP, and Matbench Discovery.
+- WBM: out-of-distribution test set for discovery from elemental substitutions.
+- GNoME: large catalog of predicted stable/near-hull materials.
+- OMat24: current high-scale open DFT training data for inorganic MLIPs.
+- JARVIS-DFT: independent computed-property repository useful for validation.
+- QM9: molecule-scale atomistic property benchmark for chemistry/medicine-adjacent tests.
+
+## Gaps and Opportunities
+
+- Novelty claims need stricter automated checking against disorder, polymorphism, and database updates.
+- Formation-energy regression does not guarantee useful discovery; use convex-hull and downstream task metrics.
+- MLIPs can be systematically soft or unreliable out of distribution; fine-tuning or uncertainty calibration is needed.
+- Full DFT validation remains the bottleneck; experiment runners should budget validation calls carefully.
+- Generators still require post-generation relaxation, duplicate detection, charge/oxidation sanity checks, and stability verification.
+- Autonomous labs need audited characterization and independent confirmation before claims of "new" materials.
+
+## Recommendations for Experiments
+
+- Primary benchmark: Matbench Discovery with WBM-style unrelaxed structures and stability F1/DAF.
+- Primary local datasets: Materials Project HF snapshot, JARVIS-DFT, GNoME summaries; use OMat24 references and selectively pull OMat24 subsets only if needed.
+- Candidate generator: MatterGen for property-conditioned crystal proposals; substitution/prototype enumeration as a classical baseline.
+- Surrogate models: start with CHGNet or MACE-MP because they are easier to run locally than restricted UMA; include UMA if Hugging Face model access is available.
+- Verification flow: generate or enumerate candidates, relax with at least one MLIP, estimate energy above hull, deduplicate/novelty-check, then reserve DFT or higher-fidelity validation for top candidates.
+- Agentic loop: LLMatDesign is a useful pattern for hypothesis/action/reflection, but property predictors and structure validators should be treated as tools with explicit uncertainty and failure modes.
+
+
+════════════════════════════════════════════════════════════════════════════════
+                          PAPER REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+Generate a complete academic paper with the following structure:
+
+1. TITLE
+   - Clear, specific, informative
+   - Should convey main finding or contribution
+
+2. AUTHOR
+   - Use this exact author line in the \author{} block: shivanshu sirohi and NeuriCo
+
+3. ABSTRACT (150-250 words)
+   - Problem statement
+   - Approach
+   - Key results
+   - Significance
+
+4. INTRODUCTION
+   - Research problem and motivation
+   - Gap in existing work
+   - Our contribution (be specific)
+   - Paper organization
+
+5. RELATED WORK
+   - Organized by theme/approach
+   - Position our work relative to prior work
+   - Cite papers from literature review
+
+6. METHODOLOGY
+   - Clear description of approach
+   - Experimental setup
+   - Datasets used
+   - Evaluation metrics
+   - Baselines
+
+7. RESULTS
+   - Present results with tables and figures
+   - Statistical analysis
+   - Comparison to baselines
+   - Ablation studies (if applicable)
+
+8. DISCUSSION
+   - Interpretation of results
+   - Limitations
+   - Broader implications
+
+9. CONCLUSION
+   - Summary of contributions
+   - Key findings
+   - Future work
+
+10. REFERENCES
+   - BibTeX format
+   - All cited papers
+
+════════════════════════════════════════════════════════════════════════════════
+                          OUTPUT FORMAT
+════════════════════════════════════════════════════════════════════════════════
+
+Create a MODULAR LaTeX project with the following directory structure:
+
+paper_draft/
+├── main.tex              # Main file that imports all sections
+├── references.bib        # BibTeX references
+├── sections/
+│   ├── abstract.tex      # Abstract content
+│   ├── introduction.tex  # Introduction section
+│   ├── related_work.tex  # Related work section
+│   ├── methodology.tex   # Methodology section
+│   ├── results.tex       # Results section
+│   ├── discussion.tex    # Discussion section
+│   └── conclusion.tex    # Conclusion section
+├── figures/              # Directory for any generated figures
+├── tables/               # Directory for complex standalone tables
+└── appendix/             # Directory for appendix sections (if needed)
+
+INSTRUCTIONS:
+1. First, create the directory structure above (mkdir -p paper_draft/sections paper_draft/figures paper_draft/tables paper_draft/appendix)
+2. Write main.tex using the EXACT preamble for NEURIPS:
+
+   \documentclass{article}
+   \usepackage[final]{neurips_2025}  % NEURIPS style (neurips_2025.sty is in paper_draft/)
+   \usepackage[hidelinks]{hyperref}  % REQUIRED: clickable links
+   \usepackage{booktabs}  % REQUIRED: professional tables
+   \usepackage{graphicx}
+   \usepackage{amsmath,amssymb}
+
+   % Import command files
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+   % Use this bibliography style:
+   \bibliographystyle{plainnat}
+
+   \author{shivanshu sirohi and NeuriCo}
+
+   - Use \input{sections/...} to include each section
+   - Use \bibliography{references} for references
+3. Write each section file with COMPLETE content (no placeholders)
+4. Each section file should include its \section{} command
+5. Write references.bib with all citations in BibTeX format
+6. After writing all files, compile the paper:
+   cd paper_draft && pdflatex -interaction=nonstopmode main.tex && bibtex main && pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
+
+This modular structure allows humans to easily:
+- Edit individual sections without navigating a large file
+- Track changes per section
+- Reuse sections across different paper versions
+
+════════════════════════════════════════════════════════════════════════════════
+                          QUALITY REQUIREMENTS
+════════════════════════════════════════════════════════════════════════════════
+
+- Academic tone throughout
+- All claims must be supported by data from the experiment report
+- Proper citations using \cite{} commands
+- Clear figures and tables with proper captions
+- NO placeholder text - every section must have real content
+- The paper MUST compile without errors
+- If compilation fails, debug and fix the LaTeX errors
+
+════════════════════════════════════════════════════════════════════════════════
+                          LAB WRITING STYLE
+════════════════════════════════════════════════════════════════════════════════
+
+Follow these lab-specific conventions to match our paper style:
+
+1. LANGUAGE STYLE:
+   - Use active voice: "We propose", "We examine", "We focus on"
+   - Be direct and confident: "Our main question is...", "We hypothesize that..."
+   - State things clearly and simply - prefer plain language over jargon
+   - Use bold questions as paragraph organizers: {\bf what is X?}
+   - Include specific quantitative claims: "8.97% over baseline"
+   - Avoid fancy wording: "utilize" → "use", "facilitate" → "help"
+
+2. INTRODUCTION STRUCTURE:
+   - Engaging hook (get to the point quickly)
+   - Problem importance
+   - Gap identification
+   - Your approach with method figure reference
+   - Quantitative preview of results
+   - Contribution bullets (3-4 items, action verbs)
+
+3. CONTRIBUTION LISTS:
+   \begin{itemize}[leftmargin=*,itemsep=0pt,topsep=0pt]
+       \item We propose...
+       \item We conduct...
+       \item We complement...
+   \end{itemize}
+
+4. MODULAR COMMANDS STRUCTURE:
+   Command templates are pre-copied to paper_draft/commands/:
+   - math.tex: Math notation macros
+   - general.tex: Formatting macros
+   - macros.tex: Project-specific term definitions (customize this for your paper)
+
+   In main.tex, include:
+   \input{commands/math}
+   \input{commands/general}
+   \input{commands/macros}
+
+5. REFERENCE CONVENTIONS:
+   Use reference macros from math.tex:
+   - \figref{fig:name} for "figure 1" (lowercase, in-sentence)
+   - \Figref{fig:name} for "Figure 1" (capitalized, start of sentence)
+   - \secref{sec:name} for "section 2"
+
+6. TEXT FORMATTING:
+   - Use \para{Header text} for bold paragraph headers
+   - Define method/dataset names with \textsc and \xspace:
+     \newcommand{\methodname}{\textsc{MethodName}\xspace}
+
+7. TABLE FORMATTING:
+   - Use booktabs package (no vertical lines)
+   - Use \resizebox{\textwidth}{!}{...} for wide tables
+   - Use @{} to remove padding at table edges
+   - Use \cmidrule(lr){x-y} for sub-headers
+   - Use \textsc{} for dataset/method names in headers
+   - Bold best results with {\bf ...}
+
+8. FIGURE FORMATTING:
+   - Use 0.32\textwidth for 3-column subfigures
+   - Use 0.95\linewidth for full-width figures
+   - Use \input{figures/legend} for shared legends
+   - Write self-contained captions explaining key observations
+
+9. RESULTS PRESENTATION:
+   - Define \increase and \decrease for colored arrows (green up, red down)
+   - Bold best results in tables
+   - Report confidence intervals when available
+
+10. ALGORITHM STYLING:
+    - Use algpseudocode with [noend]
+    - Use \triangleright for comments
+
+11. HYPERLINKS (REQUIRED):
+    - Always use \usepackage[hidelinks]{hyperref} or with colored links
+    - All citations, section refs, figure refs, table refs must be clickable
+    - This is essential for reader navigation
+
+════════════════════════════════════════════════════════════════════════════════
+                          WORKFLOW: REVIEW AND REFLECT
+════════════════════════════════════════════════════════════════════════════════
+
+Before calling finish, you MUST complete these review steps:
+
+1. REVIEW RESOURCES (at the start):
+   - Read .codex/skills/paper-writer/SKILL.md for detailed guidance
+   - Study templates/paper_writing/lab_style_guide.md for style conventions
+   - Browse paper_examples/ for formatting and language patterns
+
+2. SELF-REFLECTION (before finishing):
+   After writing all sections, review your work against these criteria:
+
+   LANGUAGE CHECK:
+   - [ ] Is the writing clear and jargon-free?
+   - [ ] Are claims specific with quantitative support?
+   - [ ] Is active voice used throughout?
+
+   FORMATTING CHECK:
+   - [ ] Does main.tex include \input{commands/math}, \input{commands/general}, \input{commands/macros}?
+   - [ ] Is hyperref package included for clickable references?
+   - [ ] Do tables use booktabs (no vertical lines)?
+   - [ ] Are best results bolded in tables?
+   - [ ] Are figures/tables properly captioned?
+
+   STRUCTURE CHECK:
+   - [ ] Does introduction follow: hook → importance → gap → approach → preview → contributions?
+   - [ ] Are contribution bullets specific with action verbs?
+   - [ ] Does the paper compile without errors?
+
+3. FIX ISSUES:
+   - Address any issues found in the self-reflection
+   - Re-compile and verify the PDF looks correct
+
+Only after completing this review should you consider the paper finished.

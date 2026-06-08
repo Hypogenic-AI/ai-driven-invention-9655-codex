@@ -1,0 +1,19 @@
+\begin{table}[t]
+    \centering
+    \caption{Dataset audit for the offline discovery benchmark. Stable or \nearhull means energy above hull $\leq 0.05$ eV/atom for \mpdata. On-hull for \gnome means decomposition energy per atom $\leq 0.0$.}
+    \label{tab:data_audit}
+    \begin{tabular}{@{}lr@{}}
+        \toprule
+        Quantity & Value \\
+        \midrule
+        \mpdata raw rows & 133,420 \\
+        \mpdata labeled rows used & 129,622 \\
+        Missing energy-above-hull rows excluded & 3,798 \\
+        Stable or \nearhull rows & 73,630 \\
+        Stable prevalence & 56.80\% \\
+        \gnome R2SCAN rows & 139,541 \\
+        \gnome on-hull prevalence & 86.96\% \\
+        \gnome near-hull prevalence & 98.41\% \\
+        \bottomrule
+    \end{tabular}
+\end{table}

@@ -1,0 +1,17 @@
+\section{Related Work}
+\label{sec:related_work}
+
+\para{Large-scale screening and active learning.}
+\mpdata provides a widely used database of computed inorganic materials properties and helped establish high-throughput stability screening as a practical route to materials design \cite{jain2013materials}. \gnome scaled this idea by combining graph neural networks, candidate generation, active learning, and DFT validation, reporting a large expansion of predicted stable materials \cite{merchant2023gnome}. Our work is smaller in scale but isolates a different question: if the oracle is fixed and the budget is limited, which policy allocates validation most efficiently?
+
+\para{Discovery-oriented benchmarks.}
+\matbench shifted evaluation from generic energy regression toward stability triage for discovery, using \wbm structures and convex-hull metrics to evaluate whether models can identify stable candidates \cite{riebesell2023matbench}. This framing is close to our goal, but our experiment focuses on sequential selection rather than one-shot leaderboard prediction. We use discovery count, precision, recall, acceleration, confidence intervals, and paired policy comparisons to measure budgeted search behavior directly.
+
+\para{Generative design and LLM-guided modification.}
+\mattergen uses diffusion modeling to generate inorganic crystals with stability, novelty, uniqueness, and conditioning objectives \cite{zeni2023mattergen}. \llmatdesign uses language-model agents to propose interpretable structure modifications and update proposals from tool feedback \cite{jia2024llmatdesign}. These approaches address candidate generation. We instead hold the candidate pool fixed and ask whether the validation loop can prioritize candidates better than trial-and-error. The two directions are complementary: generative systems still need reliable ranking, filtering, and validation policies.
+
+\para{Foundation atomistic models.}
+\mthreegnet, \chgnet, \macemp, \omat, and \uma show that learned atomistic models can support broad materials screening, relaxation, and simulation \cite{chen2022m3gnet,deng2023chgnet,batatia2024foundation,barroso2024omat24,wood2025uma}. These models are stronger than the lightweight surrogate used here, but they also introduce more dependencies, calibration questions, and validation cost. We use a simple \mlp to test whether even coarse descriptors contain enough signal for budgeted discovery; replacing it with stronger atomistic models is a direct next step.
+
+\para{Autonomous laboratories and validation.}
+\alab demonstrated a robotic loop for inorganic synthesis, but its subsequent correction underscores the need for audited phase identification, novelty checks, and cautious interpretation \cite{szymanski2023alab,nature2026alabcorrection}. Our benchmark deliberately avoids claiming new materials. It measures the triage layer only: how well an autonomous policy chooses candidates whose precomputed labels indicate thermodynamic stability.

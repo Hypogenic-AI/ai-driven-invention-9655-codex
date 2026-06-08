@@ -1,0 +1,37 @@
+\section{Methodology}
+\label{sec:methodology}
+
+\para{Problem formulation.}
+Let $\gC=\{(\vx_i, y_i)\}_{i=1}^{N}$ be a candidate pool. The loop observes descriptors $\vx_i$ for all candidates, but the binary stability label $y_i$ is hidden until candidate $i$ is selected for validation. We define $y_i=1$ when energy above hull is at most $0.05$ eV/atom, and $y_i=0$ otherwise. The objective is to maximize cumulative stable discoveries under a fixed validation budget $B=2400$.
+
+\para{Datasets.}
+The primary oracle is a Hugging Face \mpdata snapshot with 133,420 raw rows. We excluded 3,798 rows with missing energy-above-hull labels and used 129,622 labeled rows. The external transfer check uses 139,541 \gnome R2SCAN summary rows and treats decomposition energy per atom at or below zero as the stricter on-hull label. We use \gnome near-hull rates only as a secondary diagnostic because that candidate catalog is already highly enriched.
+
+\para{Descriptors and leakage control.}
+The input features include 118 element-fraction features, composition summaries such as atom count, number of elements, composition entropy, maximum and minimum element fraction, weighted atomic-number statistics, and coarse period/block summaries. For the \mpdata active loop we also include cell-level descriptors: volume, volume per atom, cell lengths, aspect ratio, and angles. We exclude energy-like columns, including energy per atom, formation energy, energy above hull, and decomposition energy, from all model inputs.
+
+\para{Surrogate model.}
+The surrogate is a small PyTorch \mlp classifier trained to estimate $p_{\theta}(y=1 \mid \vx)$. Training uses batch size 128. Inference uses batch size 8,192. When CUDA is available, the model runs on GPU 0 with mixed precision. For the held-out predictive-signal evaluation, we train on 60,000 rows and evaluate on 20,000 rows.
+
+\begin{algorithm}[t]
+\caption{\methodname active-discovery loop}
+\label{alg:atomic_loop}
+\begin{algorithmic}[1]
+\Require Candidate descriptors $\{\vx_i\}_{i=1}^{N}$, hidden labels $\{y_i\}_{i=1}^{N}$, budget $B$, initial size $B_0$, rounds $R$, batch size $b$
+\Ensure Selected set $S$ and cumulative stable discoveries $\sum_{i \in S} y_i$
+\State Select $B_0=400$ candidates uniformly at random and reveal their labels
+\For{$r = 1,\ldots,R$}
+    \State Train $p_{\theta}(y=1 \mid \vx)$ on all revealed labels
+    \State Score each unselected candidate according to the acquisition policy
+    \State Select the next $b=250$ candidates and reveal their labels
+    \State Update the observed set and cumulative discovery trace
+\EndFor
+\State \Return selected candidates and discovery trace
+\end{algorithmic}
+\end{algorithm}
+
+\para{Acquisition policies.}
+Random selection is the trial-and-error baseline. Uncertainty sampling chooses candidates closest to the classifier decision boundary. Greedy selection chooses the largest predicted stability probability. \ucb adds an uncertainty bonus to the predicted probability. \diverseucb starts from high-\ucb candidates and spreads selection across composition space to reduce narrow exploitation. Each policy is evaluated on the same five seeds: 13, 29, 41, 53, and 67. For each seed, the candidate pool contains 25,000 \mpdata rows, the loop starts with 400 random observations, and the eight acquisition rounds add 2,000 candidates.
+
+\para{Metrics and statistical tests.}
+The main endpoint is final cumulative stable discoveries at budget 2,400. We also report stable precision, discovery acceleration factor, and recall of stable candidates available in the candidate pool. Discovery acceleration is selected stable precision divided by the pool stable prevalence. For policy comparisons, we use paired differences against random across matched seeds. Shapiro-Wilk tests check paired differences; the selected tests were paired $t$-tests. We report 95\% confidence intervals, Cohen's $d$, raw tests in the artifact files, and Holm-adjusted $p$ values across policy-vs-random comparisons.

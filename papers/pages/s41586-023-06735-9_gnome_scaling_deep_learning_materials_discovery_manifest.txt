@@ -1,0 +1,8 @@
+PDF: papers/s41586-023-06735-9_gnome_scaling_deep_learning_materials_discovery.pdf
+Total pages: 11
+Pages per chunk: 5
+
+Chunks:
+  s41586-023-06735-9_gnome_scaling_deep_learning_materials_discovery_chunk_001.pdf: pages 1-5
+  s41586-023-06735-9_gnome_scaling_deep_learning_materials_discovery_chunk_002.pdf: pages 6-10
+  s41586-023-06735-9_gnome_scaling_deep_learning_materials_discovery_chunk_003.pdf: page 11

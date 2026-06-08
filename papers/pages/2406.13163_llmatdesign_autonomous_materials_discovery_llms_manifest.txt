@@ -1,0 +1,10 @@
+PDF: papers/2406.13163_llmatdesign_autonomous_materials_discovery_llms.pdf
+Total pages: 22
+Pages per chunk: 5
+
+Chunks:
+  2406.13163_llmatdesign_autonomous_materials_discovery_llms_chunk_001.pdf: pages 1-5
+  2406.13163_llmatdesign_autonomous_materials_discovery_llms_chunk_002.pdf: pages 6-10
+  2406.13163_llmatdesign_autonomous_materials_discovery_llms_chunk_003.pdf: pages 11-15
+  2406.13163_llmatdesign_autonomous_materials_discovery_llms_chunk_004.pdf: pages 16-20
+  2406.13163_llmatdesign_autonomous_materials_discovery_llms_chunk_005.pdf: pages 21-22

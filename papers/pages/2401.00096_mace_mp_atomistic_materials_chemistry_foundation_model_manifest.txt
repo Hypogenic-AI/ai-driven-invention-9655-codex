@@ -1,0 +1,36 @@
+PDF: papers/2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model.pdf
+Total pages: 153
+Pages per chunk: 5
+
+Chunks:
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_001.pdf: pages 1-5
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_002.pdf: pages 6-10
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_003.pdf: pages 11-15
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_004.pdf: pages 16-20
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_005.pdf: pages 21-25
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_006.pdf: pages 26-30
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_007.pdf: pages 31-35
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_008.pdf: pages 36-40
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_009.pdf: pages 41-45
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_010.pdf: pages 46-50
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_011.pdf: pages 51-55
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_012.pdf: pages 56-60
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_013.pdf: pages 61-65
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_014.pdf: pages 66-70
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_015.pdf: pages 71-75
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_016.pdf: pages 76-80
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_017.pdf: pages 81-85
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_018.pdf: pages 86-90
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_019.pdf: pages 91-95
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_020.pdf: pages 96-100
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_021.pdf: pages 101-105
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_022.pdf: pages 106-110
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_023.pdf: pages 111-115
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_024.pdf: pages 116-120
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_025.pdf: pages 121-125
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_026.pdf: pages 126-130
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_027.pdf: pages 131-135
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_028.pdf: pages 136-140
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_029.pdf: pages 141-145
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_030.pdf: pages 146-150
+  2401.00096_mace_mp_atomistic_materials_chemistry_foundation_model_chunk_031.pdf: pages 151-153

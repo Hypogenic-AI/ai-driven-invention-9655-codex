@@ -1,0 +1,27 @@
+{
+  "success": true,
+  "stages": {
+    "resource_finder": {
+      "success": true,
+      "completion_marker": "/workspaces/ai-driven-invention-9655-codex/.resource_finder_complete",
+      "outputs": {
+        "literature_review": "/workspaces/ai-driven-invention-9655-codex/literature_review.md",
+        "resources_catalog": "/workspaces/ai-driven-invention-9655-codex/resources.md",
+        "papers_dir": "/workspaces/ai-driven-invention-9655-codex/papers",
+        "datasets_dir": "/workspaces/ai-driven-invention-9655-codex/datasets",
+        "code_dir": "/workspaces/ai-driven-invention-9655-codex/code"
+      },
+      "log_file": "/workspaces/ai-driven-invention-9655-codex/logs/resource_finder_codex.log",
+      "transcript_file": "/workspaces/ai-driven-invention-9655-codex/logs/resource_finder_codex_transcript.jsonl",
+      "elapsed_time": 1028.751808643341
+    },
+    "experiment_runner": {
+      "success": true,
+      "return_code": 0,
+      "elapsed_time": 1132.9408555030823,
+      "log_file": "/workspaces/ai-driven-invention-9655-codex/logs/execution_codex.log",
+      "transcript_file": "/workspaces/ai-driven-invention-9655-codex/logs/execution_codex_transcript.jsonl"
+    }
+  },
+  "work_dir": "/workspaces/ai-driven-invention-9655-codex"
+}

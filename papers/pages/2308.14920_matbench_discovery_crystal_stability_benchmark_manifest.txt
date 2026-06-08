@@ -1,0 +1,12 @@
+PDF: papers/2308.14920_matbench_discovery_crystal_stability_benchmark.pdf
+Total pages: 32
+Pages per chunk: 5
+
+Chunks:
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_001.pdf: pages 1-5
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_002.pdf: pages 6-10
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_003.pdf: pages 11-15
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_004.pdf: pages 16-20
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_005.pdf: pages 21-25
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_006.pdf: pages 26-30
+  2308.14920_matbench_discovery_crystal_stability_benchmark_chunk_007.pdf: pages 31-32
